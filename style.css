@@ -1,0 +1,43 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background: #f9f3ff;
+  color: #444;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+.hidden { display: none; }
+.btn {
+  background: #d17fcc;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn:hover {
+  background: #b04fa1;
+}
+.section { margin-top: 20px; }
+.message-box {
+  background: #fff0f5;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+#tasks-list li, #report-tasks li {
+  text-align: right;
+  margin: 8px 0;
+}
+#gifts-progress {
+  margin: 10px 0;
+}
