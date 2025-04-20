@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>عالم لولو ملكتي</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f9f3ff;color:#444;margin:0;padding:0;text-align:center;}
+    .container{max-width:600px;margin:20px auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:20px;}
+    .hidden{display:none;}
+    .btn{background:#d17fcc;color:#fff;border:none;padding:10px 15px;margin:5px;border-radius:8px;cursor:pointer;}
+    .btn:hover{background:#b04fa1;}
+    .section{margin-top:20px;}
+    .message-box{background:#fff0f5;padding:15px;border-radius:10px;margin-top:10px;}
+    ul{list-style:none;padding:0;}
+    ul li{margin:8px 0;text-align:right;}
+  </style>
+</head>
+<body>
+  <div id="role-selection" class="container">
+    <h1>مرحبا بك في عالم لولو ملكتي</h1>
+    <button class="btn" onclick="selectRole('queen')">أنا الملكة 👑</button>
+    <button class="btn" onclick="selectRole('serse7')">أنا السرسوح 🐑</button>
+  </div>
+
+  <div id="queen-interface" class="container hidden">
+    <h2>واجهة الملكة</h2>
+    <div class="section">
+      <h3>مهام اليوم</h3>
+      <ul id="tasks-list"></ul>
+      <input id="task-input" type="text" placeholder="أضف مهمة جديدة…" />
+      <button class="btn" onclick="addTask()">أضف</button>
+    </div>
+    <div class="section">
+      <h3>رصيد الهدايا: <span id="gift-balance">0</span> د.ع</h3>
+      <div id="gifts-progress"></div>
+      <button class="btn" onclick="requestGift()">اطالب هدية</button>
+    </div>
+    <div class="section">
+      <h3>رسائل غزل طويلة</h3>
+      <button class="btn" onclick="showLongMessage()">افتح رسالة حب</button>
+      <div id="long-message" class="message-box hidden"></div>
+    </div>
+  </div>
+
+  <div id="serse7-interface" class="container hidden">
+    <h2>واجهة السرسوح</h2>
+    <div class="section">
+      <h3>تقرير المهام اليومية</h3>
+      <ul id="report-tasks"></ul>
+    </div>
+    <div class="section">
+      <h3>طلبات هدايا الملكة</h3>
+      <ul id="gift-requests"></ul>
+    </div>
+  </div>
+
+  <script>
+    function $(id){return document.getElementById(id);}
+    function selectRole(role){
+      $('role-selection').classList.add('hidden');
+      if(role==='queen') $('queen-interface').classList.remove('hidden');
+      else $('serse7-interface').classList.remove('hidden');
+    }
+
+    let tasks = JSON.parse(localStorage.getItem('tasks')||'[]');
+    let giftBalance = parseFloat(localStorage.getItem('giftBalance')||'0');
+    let usedLong = JSON.parse(localStorage.getItem('usedLong')||'[]');
+
+    function save(){
+      localStorage.setItem('tasks',JSON.stringify(tasks));
+      localStorage.setItem('giftBalance',giftBalance);
+      localStorage.setItem('usedLong',JSON.stringify(usedLong));
+    }
+
+    function renderTasks(){
+      $('tasks-list').innerHTML='';
+      tasks.forEach((t,i)=>{
+        let li=document.createElement('li');
+        li.textContent=t;
+        let btn=document.createElement('button');
+        btn.textContent='✔'; btn.onclick=()=>completeTask(i);
+        li.appendChild(btn);
+        $('tasks-list').appendChild(li);
+      });
+      // mirror to serse7
+      $('report-tasks').innerHTML = tasks.map(t=>`<li>${t}</li>`).join('');
+    }
+    function addTask(){
+      let v=$('task-input').value.trim();
+      if(v){tasks.push(v);$('task-input').value='';renderTasks();save();}
+    }
+    function completeTask(i){
+      tasks.splice(i,1);
+      giftBalance++;
+      save();
+      renderTasks(); renderGifts();
+    }
+    function renderGifts(){
+      $('gift-balance').textContent=giftBalance.toFixed(0);
+      let html='';
+      [['أكل',5],['كاش',10],['شي ان',20]].forEach(([name,thr])=>{
+        let p=Math.min(100,(giftBalance/thr)*100);
+        html+=`<div>${name}: ${p.toFixed(0)}%</div>`;
+      });
+      $('gifts-progress').innerHTML=html;
+    }
+    function requestGift(){
+      let req=prompt('اكتب طلب الهدية مع رسالة:');
+      if(req){
+        let ul=$('gift-requests');
+        let li=document.createElement('li');
+        li.textContent=req;
+        ul.appendChild(li);
+        save();
+      }
+    }
+    function showLongMessage(){
+      let msgs=[
+        "أنتِ الأجمل في حياتي وأجمل ما حدث لي...",
+        "كل يوم يمر يزداد حبي لكِ...",
+        "أنتِ بطلة قلبي ونور حياتي...",
+        "لا كلمات توفيكِ حقكِ..."
+      ];
+      let idx=msgs.findIndex(m=>!usedLong.includes(m));
+      if(idx<0) return alert('لا رسائل متبقية اليوم');
+      let msg=msgs[idx];
+      usedLong.push(msg);
+      $('long-message').textContent=msg;
+      $('long-message').classList.remove('hidden');
+      save();
+    }
+    window.onload=()=>{
+      renderTasks();
+      renderGifts();
+    };
+  </script>
+</body>
+</html>
